@@ -1,5 +1,5 @@
 # Pull official base image
-FROM python:3.10-slim
+FROM python:3.10.1-slim-buster
 
 # Set working directory
 WORKDIR /usr/src/app
