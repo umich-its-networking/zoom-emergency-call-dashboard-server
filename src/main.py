@@ -19,6 +19,16 @@ app.add_middleware(
 
 received_calls = []
 
+def detected_test_call(call_object):
+    """
+        Discovers whether or not a call should be classified as a "test".
+        Returns a boolean for the discovered state.
+    """
+    phone_number = call_object.get("payload").get("object").get("callee").get("phone_number")
+    if phone_number == "933" or phone_number == 311:
+        return True
+    return False
+
 def get_calls():
     """
         Pulls calls out of the received_calls list.
@@ -30,7 +40,7 @@ def get_calls():
 
 
 @app.get("/status-check")
-async def check(settings: Settings = Depends(get_settings)):
+async def status_check(settings: Settings = Depends(get_settings)):
     """
         Provides a base HTTP route for checking the server status.
     """
@@ -45,7 +55,11 @@ async def call_log_receiver(request: Request):
         Endpoint to receive data from web-hook.
     """
     data = await request.json()
-    received_calls.append(data)
+    if detected_test_call(data) == False:
+        received_calls.append(data)
+    return {
+        "message": "Received"
+    }
 
 
 @app.get("/dashboard")
